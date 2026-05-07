@@ -9,7 +9,18 @@ app.use(express.json());
 
 app.post("/generate", async (req, res) => {
   try {
-    const { name } = req.body;
+    const {
+      name,
+      description = "A new Flutter project.",
+      auth = true,
+      darkMode = true,
+      selectedFeatures = [],
+    } = req.body;
+    const normalizedDescription =
+      String(description ?? "").trim() || "A new Flutter project.";
+    const normalizedSelectedFeatures = Array.isArray(selectedFeatures)
+      ? selectedFeatures
+      : [];
 
     if (!name) {
       return res.status(400).json({ error: "App name required" });
@@ -32,10 +43,26 @@ app.post("/generate", async (req, res) => {
     const pubspecPath = path.join(output, "pubspec.yaml");
 
     let pubspec = await fs.readFile(pubspecPath, "utf8");
+    const safeDescription = normalizedDescription.replace(/"/g, '\\"');
 
     pubspec = pubspec.replace(/name:\s*.*/g, `name: ${appName}`);
+    pubspec = pubspec.replace(
+      /description:\s*.*/g,
+      `description: "${safeDescription || "A new Flutter project."}"`,
+    );
 
     await fs.writeFile(pubspecPath, pubspec);
+    await fs.writeJson(
+      path.join(output, "scaffolder.config.json"),
+      {
+        name,
+        description: normalizedDescription,
+        auth,
+        darkMode,
+        selectedFeatures: normalizedSelectedFeatures,
+      },
+      { spaces: 2 },
+    );
 
     res.json({
       success: true,

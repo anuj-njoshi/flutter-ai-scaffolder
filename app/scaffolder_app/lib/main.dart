@@ -1,85 +1,70 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+
+import 'screens/scaffolder_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const ScaffolderApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class ScaffolderApp extends StatelessWidget {
+  const ScaffolderApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: Scaffold(body: Home()));
-  }
-}
-
-class Home extends StatefulWidget {
-  @override
-  State<Home> createState() => _HomeState();
-}
-
-class _HomeState extends State<Home> {
-  final nameController = TextEditingController();
-  final descController = TextEditingController();
-
-  bool auth = true;
-  bool darkMode = true;
-
-  int step = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: step == 0
-          ? Column(
-              children: [
-                TextField(controller: nameController, decoration: InputDecoration(labelText: "App Name")),
-                TextField(controller: descController, decoration: InputDecoration(labelText: "Description")),
-                ElevatedButton(onPressed: () => setState(() => step = 1), child: Text("Next"))
-              ],
-            )
-          : step == 1
-              ? Column(
-                  children: [
-                    SwitchListTile(
-                      title: Text("Auth"),
-                      value: auth,
-                      onChanged: (v) => setState(() => auth = v),
-                    ),
-                    SwitchListTile(
-                      title: Text("Dark Mode"),
-                      value: darkMode,
-                      onChanged: (v) => setState(() => darkMode = v),
-                    ),
-                    ElevatedButton(onPressed: () => setState(() => step = 2), child: Text("Next"))
-                  ],
-                )
-              : Column(
-                  children: [
-                    Text("Ready to generate"),
-                   ElevatedButton(
-  onPressed: () async {
-    final response = await http.post(
-      Uri.parse("http://localhost:3000/generate"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "name": nameController.text,
-      }),
-    );
-
-    print(response.body);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Project Generated")),
-    );
-  },
-  child: Text("Generate"),
-),
-                  ],
-                ),
+    return MaterialApp(
+      title: 'Flutter AI Scaffolder',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFFF4F1EA),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF0E6B5C),
+          brightness: Brightness.light,
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: const Color(0xFFF9FBFA),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 18,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(18),
+            borderSide: const BorderSide(color: Color(0xFFE1EAE6)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(18),
+            borderSide: const BorderSide(color: Color(0xFFE1EAE6)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(18),
+            borderSide: const BorderSide(color: Color(0xFF0E6B5C), width: 1.5),
+          ),
+        ),
+        snackBarTheme: const SnackBarThemeData(
+          behavior: SnackBarBehavior.floating,
+        ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            backgroundColor: const Color(0xFF10362E),
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: const Color(0xFF17342F),
+            side: const BorderSide(color: Color(0xFFD4E1DB)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+          ),
+        ),
+      ),
+      home: const ScaffolderScreen(),
     );
   }
 }
